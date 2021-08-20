@@ -170,7 +170,13 @@ void pwd()
 // Inbuilt function that changes to the given path or path specified by HOME
 void cd(char ** command)
 {
-    // case when not given a path TODO this should also handle when given ~
+    if(command[1] != NULL && command[2] != NULL)
+    {
+        fprintf(stderr, "-nqb: %s: too many arguments\n", command[0]);
+        return;
+    }
+
+    // case when not given a path
     if(command[1] == NULL)
     {
         char * home;
@@ -189,21 +195,18 @@ void cd(char ** command)
     // case when given path
     if(command[1] != NULL)
     {
-        // change directory to current directory
-        if(strcmp(command[1], ".") == 0)
+        // Note: chdir command handles cases for things like ., .. or ~ given as well
+        int successful_change = chdir(command[1]);
+
+        if(successful_change == -1)
+        {
+            fprintf(stderr, "-nqb: %s: %s: No such file or directory\n"
+                ,command[0], command[1]);
+        }
+        else
         {
             return;
         }
-
-        if(strcmp(command[1], "..") == 0)
-        {
-            // TODO need to think about easiest way to move up one directory level
-        }
-        // if path not found return error msg - see bash error for example
-        // case 1: given .
-        // case 2: given ..
-        // case 3: given \somepath
-        
     }
 
     return;

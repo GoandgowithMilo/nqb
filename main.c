@@ -22,6 +22,8 @@ void free_tokens(char ** tokens);
 void execute_command(char ** command, char ** path);
 void pwd();
 void cd(char ** command);
+void run_command(char ** command, char ** path);
+int is_executable(char * full_path);
 
 int main(int argc, char * argv[])
 {
@@ -148,6 +150,14 @@ void execute_command(char ** command, char ** path)
         return;
     }
 
+    // TODO
+    // check if the first element of the command is a '\'
+    // if so we're doing run from path variant
+    // might be better to just call posix_spawn function here regadless
+    // then have something within that function that handles it
+
+    run_command(command, path);
+
     return;
 }
 
@@ -213,8 +223,37 @@ void cd(char ** command)
 }
 
 
+// Function which checks for file existence then attempts to open them
+void run_command(char ** command, char ** path)
+{
+    // iterate through each path
+    // assemble a path to an exectuable with the command
+    // test if this full path is executable
+    // if exectuable, 
+    int i = 0;
+    while(path[i] != NULL)
+    {
+        char full_path[MAX_LINE_CHARS + 20];
+        strcpy(full_path, path[i]);
+        strcat(full_path, "/");
+        strcat(full_path, command[0]);
 
+ d        //TODO test if full path leads to a file that is executable
+        //TODO call posix_spawn if it is 
 
+        i++;
+    }
 
+    return;
 
+    // iterate through the paths
+    // for each attempt to execute the file
+    // need to be able to detect if the file can be executed
+    // TODO implement a way to check if a file is executable
+    // TODO if hte file is executable, execute it
+}
 
+int is_executable(char * full_path)
+{
+    ;
+}

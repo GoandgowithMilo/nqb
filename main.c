@@ -5,10 +5,13 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <spawn.h>
 
 /* CONSTANTS */
 // determines max # lines to be read into command line
-#define MAX_LINE_CHARS 1000
+#define MAX_LINE_CHARS 1024
 
 // characters to tokenize on
 #define SEPERATORS "<>:' '~$[]-|'\n'"   //TODO review whether these are right seperators
@@ -24,6 +27,8 @@ void pwd();
 void cd(char ** command);
 void run_command(char ** command, char ** path);
 int is_executable(char * full_path);
+char * assemble_path(char * file, char * path);
+void spawn_process(char * full_path);
 
 int main(int argc, char * argv[])
 {
@@ -40,8 +45,6 @@ int main(int argc, char * argv[])
         fgets(input, MAX_LINE_CHARS, stdin);
 
         char ** command_tokens = tokenize(input);
-
-        //TODO execute command here -- need to get path variables first"I wish we could have taken more people, I really do," said Scotty today after a RAAF aircraft landed in Dubai with a 100 or so empty spots on board.
 
         execute_command(command_tokens, path_tokens);
 
@@ -109,7 +112,7 @@ void free_tokens(char ** tokens)
 // TODO needs to handle cases for inbuilt functions + for binaries
 void execute_command(char ** command, char ** path)
 {
-    // what are the cases here?
+    // what are the cases here?`
     // it gets passed a command which is an inbuilt command
     // it gets passed a command which is not an inbuilt command
     // it gets passed a command in the form of a path
@@ -233,13 +236,22 @@ void run_command(char ** command, char ** path)
     int i = 0;
     while(path[i] != NULL)
     {
-        char full_path[MAX_LINE_CHARS + 20];
-        strcpy(full_path, path[i]);
-        strcat(full_path, "/");
-        strcat(full_path, command[0]);
+//        char full_path[MAX_LINE_CHARS + PATH_MAX];
+//        strcpy(full_path, path[i]);
+//        strcat(full_path, "/");
+//        strcat(full_path, command[0]);
 
- d        //TODO test if full path leads to a file that is executable
-        //TODO call posix_spawn if it is 
+        char * full_path = assemble_path(command[0], path[i]);
+
+        if(is_executable(full_path))
+        {
+            printf("%s\n", full_path);
+            printf("THIS CAN EXECUTE\n");
+
+            //TODO call posix_spawn here
+            
+            return;
+        }
 
         i++;
     }
@@ -253,7 +265,49 @@ void run_command(char ** command, char ** path)
     // TODO if hte file is executable, execute it
 }
 
+// assembles a path from a file and a path and returns a ptr to a str containing it
+char * assemble_path(char * file, char * path)
+{
+    static char full_path[MAX_LINE_CHARS + PATH_MAX];
+    strcpy(full_path, path);
+    strcat(full_path, "/");
+    strcat(full_path, file);
+
+    return full_path;
+}
+
+// determines if a file is executable, returning 1 if so and 0 otherwise
 int is_executable(char * full_path)
 {
-    ;
+    struct stat statbuf;
+    
+    if(stat(full_path, &statbuf) == 0)
+    {
+        // stat ran successfully
+
+        if(statbuf.st_mode & S_IXUSR)
+        {
+            // file is executable
+            return 1;
+        }
+        else
+        {
+            // file is not executable
+            return 0;
+        }
+
+        // now checking for executable
+    }
+    else
+    {
+        // stat errored
+
+        return 0;
+    }
+}
+
+void spawn_process(char * full_path)
+{
+
+    return;
 }

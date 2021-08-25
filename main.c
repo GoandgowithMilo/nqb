@@ -8,13 +8,14 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <spawn.h>
+#include <sys/wait.h>
 
 /* CONSTANTS */
 // determines max # lines to be read into command line
 #define MAX_LINE_CHARS 1024
 
 // characters to tokenize on
-#define SEPERATORS "<>:' '~$[]-|'\n'"   //TODO review whether these are right seperators
+#define SEPERATORS "<>:' '~$[]|'\n'"   //TODO review whether these are right seperators
 
 // display prompt
 #define DISPLAY "~: "
@@ -28,7 +29,7 @@ void cd(char ** command);
 void run_command(char ** command, char ** path);
 int is_executable(char * full_path);
 char * assemble_path(char * file, char * path);
-void spawn_process(char * full_path);
+void spawn_process(char * full_path, char ** argv);
 
 int main(int argc, char * argv[])
 {
@@ -47,8 +48,6 @@ int main(int argc, char * argv[])
         char ** command_tokens = tokenize(input);
 
         execute_command(command_tokens, path_tokens);
-
-        // execute command needs the path variables and the tokenized commands
 
         free_tokens(command_tokens);
     }
@@ -109,24 +108,9 @@ void free_tokens(char ** tokens)
 }
 
 // attempts to execute the given command
-// TODO needs to handle cases for inbuilt functions + for binaries
 void execute_command(char ** command, char ** path)
 {
-    // what are the cases here?`
-    // it gets passed a command which is an inbuilt command
-    // it gets passed a command which is not an inbuilt command
-    // it gets passed a command in the form of a path
-
     // assumes command[0] is the actual command and the rest are arguments
-
-    // basically run down a list and have the inbuilt commands first - if there becomes too many
-    // I can just perform a single check for any of the inbuilt keywords then pass to a new
-    // function which handles the correct one
-
-    // current inbuilts
-    // - exit
-    // - pwd
-    // - cd
 
     /* Inbuilt Functions */
     // closes the terminal
@@ -152,13 +136,8 @@ void execute_command(char ** command, char ** path)
 
         return;
     }
-
-    // TODO
-    // check if the first element of the command is a '\'
-    // if so we're doing run from path variant
-    // might be better to just call posix_spawn function here regadless
-    // then have something within that function that handles it
-
+    
+    /* External Functions */
     run_command(command, path);
 
     return;
@@ -229,26 +208,32 @@ void cd(char ** command)
 // Function which checks for file existence then attempts to open them
 void run_command(char ** command, char ** path)
 {
+    // test if we're given a path instead of a command
+    // if the path is executable, attempt to execute
+    if(command[0][0] == '/')
+    {
+        if(is_executable(command[0]))
+        {
+            spawn_process(command[0], command);
+
+            return;
+        }
+
+        return;
+    }
+
     // iterate through each path
     // assemble a path to an exectuable with the command
     // test if this full path is executable
-    // if exectuable, 
+    // attempt to execute if it is 
     int i = 0;
     while(path[i] != NULL)
     {
-//        char full_path[MAX_LINE_CHARS + PATH_MAX];
-//        strcpy(full_path, path[i]);
-//        strcat(full_path, "/");
-//        strcat(full_path, command[0]);
-
         char * full_path = assemble_path(command[0], path[i]);
 
         if(is_executable(full_path))
         {
-            printf("%s\n", full_path);
-            printf("THIS CAN EXECUTE\n");
-
-            //TODO call posix_spawn here
+            spawn_process(full_path, command);
             
             return;
         }
@@ -257,12 +242,6 @@ void run_command(char ** command, char ** path)
     }
 
     return;
-
-    // iterate through the paths
-    // for each attempt to execute the file
-    // need to be able to detect if the file can be executed
-    // TODO implement a way to check if a file is executable
-    // TODO if hte file is executable, execute it
 }
 
 // assembles a path from a file and a path and returns a ptr to a str containing it
@@ -284,7 +263,6 @@ int is_executable(char * full_path)
     if(stat(full_path, &statbuf) == 0)
     {
         // stat ran successfully
-
         if(statbuf.st_mode & S_IXUSR)
         {
             // file is executable
@@ -295,19 +273,30 @@ int is_executable(char * full_path)
             // file is not executable
             return 0;
         }
-
-        // now checking for executable
     }
     else
     {
         // stat errored
-
         return 0;
     }
 }
 
-void spawn_process(char * full_path)
+void spawn_process(char * full_path, char ** argv)
 {
+    pid_t pid;
+    int  exit_status;
+
+    // runs the process
+    if(posix_spawn(&pid, full_path, NULL, NULL, argv, NULL) != 0)
+    {
+        fprintf(stderr, "Spawning process failed\n");
+    }
+
+    // wait for process to terminate
+    if(waitpid(pid, &exit_status, 0) == -1)
+    {
+        fprintf(stderr, "Process waiting failed\n");
+    }
 
     return;
 }

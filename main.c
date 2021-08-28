@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <spawn.h>
 #include <sys/wait.h>
+#include "text_processing.h"
 
 /* CONSTANTS */
 // determines max # lines to be read into command line
@@ -21,8 +22,8 @@
 #define DISPLAY "~: "
 
 /* FUNCTIONS */
-char ** tokenize(char * input);
-void free_tokens(char ** tokens);
+//char ** tokenize(char * input);
+//void free_tokens(char ** tokens);
 void execute_command(char ** command, char ** path);
 void pwd();
 void cd(char ** command);
@@ -57,7 +58,7 @@ int main(int argc, char * argv[])
     return 0;
 }
 
-
+/*
 // returns an array of strings
 char ** tokenize(char * input)
 {
@@ -106,6 +107,8 @@ void free_tokens(char ** tokens)
 
     return;
 }
+
+*/
 
 // attempts to execute the given command
 void execute_command(char ** command, char ** path)
@@ -281,6 +284,7 @@ int is_executable(char * full_path)
     }
 }
 
+// attempts to create a child process with the given path and arguments
 void spawn_process(char * full_path, char ** argv)
 {
     pid_t pid;

@@ -10,27 +10,26 @@
 #include <spawn.h>
 #include <sys/wait.h>
 #include "text_processing.h"
+#include "inbuilt.h"
+#include "processes.h"
 
 /* CONSTANTS */
 // determines max # lines to be read into command line
 #define MAX_LINE_CHARS 1024
 
-// characters to tokenize on
-#define SEPERATORS "<>:' '~$[]|'\n'"   //TODO review whether these are right seperators
-
 // display prompt
 #define DISPLAY "~: "
 
 /* FUNCTIONS */
-//char ** tokenize(char * input);
-//void free_tokens(char ** tokens);
 void execute_command(char ** command, char ** path);
-void pwd();
-void cd(char ** command);
 void run_command(char ** command, char ** path);
+char * assemble_path(char * file, char * path);
+
+/*
 int is_executable(char * full_path);
 char * assemble_path(char * file, char * path);
 void spawn_process(char * full_path, char ** argv);
+*/
 
 int main(int argc, char * argv[])
 {
@@ -57,58 +56,6 @@ int main(int argc, char * argv[])
 
     return 0;
 }
-
-/*
-// returns an array of strings
-char ** tokenize(char * input)
-{
-    char ** tokens = calloc(strlen(input), sizeof(char *));
-    int counter = 0;
-
-    while(*input != '\0')
-    {
-        // determines where next seperator is in the string
-        int next_sep = strcspn(input, SEPERATORS);
-
-        if(next_sep == 0)
-        {
-            // increments over the seperator so we ignore it
-            input++;
-        }
-        else
-        {
-            char * new_token = malloc(sizeof(char) * next_sep);
-            memcpy(new_token, input, next_sep);
-            new_token[next_sep] = '\0';
-
-            tokens[counter] = new_token;
-            counter++;
-
-            input += next_sep;
-        }
-    }
-
-    tokens[counter] = NULL;
-
-    return tokens;
-}
-
-// cleanup function for tokenized strings
-void free_tokens(char ** tokens)
-{
-    int i = 0;
-    while(tokens[i] != NULL)
-    {
-        free(tokens[i]);
-        i++;
-    }
-
-    free(tokens);
-
-    return;
-}
-
-*/
 
 // attempts to execute the given command
 void execute_command(char ** command, char ** path)
@@ -145,68 +92,6 @@ void execute_command(char ** command, char ** path)
 
     return;
 }
-
-// Inbuilt function that prints the current working directory
-void pwd()
-{
-    // PATH_MAX is defined in limits.h
-    char current_directory[PATH_MAX];
-
-    if(getcwd(current_directory, PATH_MAX) == NULL)
-    {
-        fprintf(stderr, "Current directory path name is greater than PATH_MAX\n");
-    }
-
-    printf("%s\n", current_directory);
-
-    return;
-}
-
-// Inbuilt function that changes to the given path or path specified by HOME
-void cd(char ** command)
-{
-    if(command[1] != NULL && command[2] != NULL)
-    {
-        fprintf(stderr, "-nqb: %s: too many arguments\n", command[0]);
-        return;
-    }
-
-    // case when not given a path
-    if(command[1] == NULL)
-    {
-        char * home;
-
-        if((home = getenv("HOME")) == NULL)
-        {
-            fprintf(stderr, "HOME variable not found - check environment variables\n");
-        }
-
-        if(chdir(home) == -1)
-        {
-            fprintf(stderr, "Unable to change to directory: %s\n", home);
-        }
-    }
-
-    // case when given path
-    if(command[1] != NULL)
-    {
-        // Note: chdir command handles cases for things like ., .. or ~ given as well
-        int successful_change = chdir(command[1]);
-
-        if(successful_change == -1)
-        {
-            fprintf(stderr, "-nqb: %s: %s: No such file or directory\n"
-                ,command[0], command[1]);
-        }
-        else
-        {
-            return;
-        }
-    }
-
-    return;
-}
-
 
 // Function which checks for file existence then attempts to open them
 void run_command(char ** command, char ** path)
@@ -247,6 +132,8 @@ void run_command(char ** command, char ** path)
     return;
 }
 
+
+
 // assembles a path from a file and a path and returns a ptr to a str containing it
 char * assemble_path(char * file, char * path)
 {
@@ -258,6 +145,7 @@ char * assemble_path(char * file, char * path)
     return full_path;
 }
 
+/*
 // determines if a file is executable, returning 1 if so and 0 otherwise
 int is_executable(char * full_path)
 {
@@ -304,3 +192,4 @@ void spawn_process(char * full_path, char ** argv)
 
     return;
 }
+*/

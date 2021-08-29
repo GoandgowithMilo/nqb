@@ -2,8 +2,8 @@
 
 int main(void)
 {
-	printf("This should sum 4 & 5\n");
-	sum(4, 5);
+	printf("This should sum 3 & 5\n");
+	sum(3, 5);
 
 	return 0;
 }

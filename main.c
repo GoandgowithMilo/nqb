@@ -1,35 +1,18 @@
-// Main that enters into an event loop for the program to run
-
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <limits.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <spawn.h>
-#include <sys/wait.h>
 #include "text_processing.h"
 #include "inbuilt.h"
 #include "processes.h"
 
-/* CONSTANTS */
+/* MACROS */
 // determines max # lines to be read into command line
 #define MAX_LINE_CHARS 1024
 
 // display prompt
 #define DISPLAY "~: "
 
-/* FUNCTIONS */
+/* FUNCTION PROTOTYPES */
 void execute_command(char ** command, char ** path);
 void run_command(char ** command, char ** path);
 char * assemble_path(char * file, char * path);
-
-/*
-int is_executable(char * full_path);
-char * assemble_path(char * file, char * path);
-void spawn_process(char * full_path, char ** argv);
-*/
 
 int main(int argc, char * argv[])
 {
@@ -110,10 +93,6 @@ void run_command(char ** command, char ** path)
         return;
     }
 
-    // iterate through each path
-    // assemble a path to an exectuable with the command
-    // test if this full path is executable
-    // attempt to execute if it is 
     int i = 0;
     while(path[i] != NULL)
     {
@@ -132,8 +111,6 @@ void run_command(char ** command, char ** path)
     return;
 }
 
-
-
 // assembles a path from a file and a path and returns a ptr to a str containing it
 char * assemble_path(char * file, char * path)
 {
@@ -145,51 +122,4 @@ char * assemble_path(char * file, char * path)
     return full_path;
 }
 
-/*
-// determines if a file is executable, returning 1 if so and 0 otherwise
-int is_executable(char * full_path)
-{
-    struct stat statbuf;
-    
-    if(stat(full_path, &statbuf) == 0)
-    {
-        // stat ran successfully
-        if(statbuf.st_mode & S_IXUSR)
-        {
-            // file is executable
-            return 1;
-        }
-        else
-        {
-            // file is not executable
-            return 0;
-        }
-    }
-    else
-    {
-        // stat errored
-        return 0;
-    }
-}
-
-// attempts to create a child process with the given path and arguments
-void spawn_process(char * full_path, char ** argv)
-{
-    pid_t pid;
-    int  exit_status;
-
-    // runs the process
-    if(posix_spawn(&pid, full_path, NULL, NULL, argv, NULL) != 0)
-    {
-        fprintf(stderr, "Spawning process failed\n");
-    }
-
-    // wait for process to terminate
-    if(waitpid(pid, &exit_status, 0) == -1)
-    {
-        fprintf(stderr, "Process waiting failed\n");
-    }
-
-    return;
-}
-*/
+//TODO implement globbing

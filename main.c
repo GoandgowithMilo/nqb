@@ -20,6 +20,7 @@ int main(int argc, char * argv[])
 
     // get the path variables to pass to execute command
     char * path = getenv("PATH");
+
     char ** path_tokens = tokenize(path);
 
     while(1)

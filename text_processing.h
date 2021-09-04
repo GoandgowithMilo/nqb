@@ -11,6 +11,6 @@
 
 char ** tokenize(char * input);
 void free_tokens(char ** tokens);
-char ** globbed(char ** tokens, int token_count);
+char ** globbed(char ** tokens);
 
 #endif

@@ -31,7 +31,11 @@ char ** tokenize(char * input)
 
     tokens[counter] = NULL;
 
-    return globbed(tokens);
+	char ** globbed_tokens = globbed(tokens);
+
+	free_tokens(tokens);
+
+    return globbed_tokens;
 }
 
 // cleanup function for tokenized strings
@@ -62,7 +66,7 @@ char ** globbed(char ** tokens)
 	{
 		glob_t globbuf;
 
-		glob(tokens[i], 0, NULL, &globbuf);
+		glob(tokens[i], GLOB_NOCHECK | GLOB_TILDE, NULL, &globbuf);
 
 		// case #1 - no matches
 		if(globbuf.gl_pathc == 0)
@@ -75,6 +79,8 @@ char ** globbed(char ** tokens)
 			globbed_tokens[counter] = token;
 
 			counter++;
+
+			globfree(&globbuf);
 		}
 		// case #2 - one match
 		else if(globbuf.gl_pathc == 1)
@@ -87,6 +93,9 @@ char ** globbed(char ** tokens)
 			globbed_tokens[counter] = token;
 
 			counter++;
+
+			// globfree(&globbuf);
+			//TODO globfree here breaks this and I'm not sure why
 		}
 		// case #3 - more than one match
 		else
@@ -103,15 +112,11 @@ char ** globbed(char ** tokens)
 
 				counter++;
 			}
-		}
 
-//TODO this currently doesn't work when we use globfree, need to work out why
-//		globfree(&globbuf)
+			globfree(&globbuf);
+		}
 		i++;
 	}
-	
-	// freeing unused memory
-	free_tokens(tokens);
 
 	// null terminating the array
 	globbed_tokens[counter] = NULL;

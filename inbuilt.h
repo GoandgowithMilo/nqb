@@ -8,5 +8,6 @@
 
 void pwd();
 void cd(char ** command);
+void exit_shell();
 
 #endif

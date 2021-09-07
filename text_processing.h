@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 // characters to tokenize on
-#define SEPERATORS "<>:' '~$[]|'\n'"   //TODO review whether these are right seperators
+#define SEPERATORS "<>:' '~$[]|'\n'"
 
 char ** tokenize(char * input);
 void free_tokens(char ** tokens);

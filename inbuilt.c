@@ -61,3 +61,8 @@ void cd(char ** command)
     return;
 }
 
+// calls exit on the shell and performs any cleanup required
+void exit_shell()
+{
+	exit(1);
+}

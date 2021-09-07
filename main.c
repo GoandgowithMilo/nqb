@@ -1,6 +1,7 @@
 #include "text_processing.h"
 #include "inbuilt.h"
 #include "processes.h"
+#include "history.h"
 
 /* MACROS */
 // determines max # lines to be read into command line
@@ -29,6 +30,9 @@ int main(int argc, char * argv[])
         printf("%s", DISPLAY);
         fgets(input, MAX_LINE_CHARS, stdin);
 
+		//TODO add buffer_history hereb
+		buffer_history(input);
+
         char ** command_tokens = tokenize(input);
 
         execute_command(command_tokens, path_tokens);
@@ -50,7 +54,7 @@ void execute_command(char ** command, char ** path)
     // closes the terminal
     if(strcmp(command[0], "exit") == 0)
     {
-        exit(1);
+        exit_shell();
 
         return;
     }
@@ -122,5 +126,3 @@ char * assemble_path(char * file, char * path)
 
     return full_path;
 }
-
-//TODO implement globbing

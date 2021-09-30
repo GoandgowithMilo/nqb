@@ -8,6 +8,6 @@
 
 void pwd();
 void cd(char ** command);
-void exit_shell();
+void exit_shell(FILE * history);
 
 #endif

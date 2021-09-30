@@ -1,4 +1,5 @@
 #include "inbuilt.h"
+#include "history.h"
 
 // Inbuilt function that prints the current working directory
 void pwd()
@@ -62,7 +63,8 @@ void cd(char ** command)
 }
 
 // calls exit on the shell and performs any cleanup required
-void exit_shell()
+void exit_shell(FILE * history)
 {
+	write_history(history);
 	exit(1);
 }

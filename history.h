@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-void buffer_history(char * input);
-void write_history();
+FILE * buffer_history(char * input);
+void write_history(FILE * history);
 
 #endif

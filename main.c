@@ -11,7 +11,7 @@
 #define DISPLAY "~: "
 
 /* FUNCTION PROTOTYPES */
-void execute_command(char ** command, char ** path);
+void execute_command(char ** command, char ** path, FILE * history);
 void run_command(char ** command, char ** path);
 char * assemble_path(char * file, char * path);
 
@@ -21,8 +21,9 @@ int main(int argc, char * argv[])
 
     // get the path variables to pass to execute command
     char * path = getenv("PATH");
-
     char ** path_tokens = tokenize(path);
+
+	FILE * history;
 
     while(1)
     {
@@ -30,12 +31,11 @@ int main(int argc, char * argv[])
         printf("%s", DISPLAY);
         fgets(input, MAX_LINE_CHARS, stdin);
 
-		//TODO add buffer_history hereb
-		buffer_history(input);
+		history = buffer_history(input);
 
         char ** command_tokens = tokenize(input);
 
-        execute_command(command_tokens, path_tokens);
+        execute_command(command_tokens, path_tokens, history);
 
         free_tokens(command_tokens);
     }
@@ -46,7 +46,7 @@ int main(int argc, char * argv[])
 }
 
 // attempts to execute the given command
-void execute_command(char ** command, char ** path)
+void execute_command(char ** command, char ** path, FILE * history)
 {
     // assumes command[0] is the actual command and the rest are arguments
 
@@ -54,7 +54,7 @@ void execute_command(char ** command, char ** path)
     // closes the terminal
     if(strcmp(command[0], "exit") == 0)
     {
-        exit_shell();
+        exit_shell(history);
 
         return;
     }

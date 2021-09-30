@@ -1,10 +1,10 @@
 #include "history.h"
 
-void buffer_history(char * input)
+FILE * buffer_history(char * input)
 {
 	char * home = getenv("HOME");
 	char pathname[1024];
-	FILE history;
+	FILE * history;
 
 	strcpy(pathname, home);
 	strcat(pathname, "/");
@@ -12,14 +12,14 @@ void buffer_history(char * input)
 
 	history = fopen(pathname, "a+");
 
-	fclose(history);
+	fprintf(history, "%s", input);
 
-	// need to build the pathname here;
-
-	return;
+	return history;
 }
 
-void write_history()
+void write_history(FILE * history)
 {
+	fclose(history);
+
 	return;
 }
